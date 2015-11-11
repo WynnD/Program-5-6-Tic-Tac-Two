@@ -4,7 +4,7 @@ using namespace std;
 
 typedef struct piece {
     int player; // 1 for player one, 2 for player two
-    int position = -1;
+    int position = -1; // stores position of piece
     char c;
 } piece_struct;
 
@@ -19,6 +19,16 @@ typedef struct OuterBoard {
     innerBoard * inner = new innerBoard;
     piece * pieces = (piece*) malloc(sizeof(piece)*8);
 } OuterBoard_struct;
+
+int getPieceIndex(OuterBoard * outer, char c) {
+    for (int i = 0; i < 9; ++i) {
+        if (outer->pieces[i].c == c) {
+            return i;
+        }
+    }
+    printf("Piece not found.\n");
+    return -1;
+}
 
 
 void printHeader(char* progName) {
@@ -57,15 +67,73 @@ void initPieces(OuterBoard* board) {
     return;
 }
 
-void printLocation(OuterBoard * outer, int locToCheck) {
+void printLocation(OuterBoard * outer, int outerLoc) {
+    bool isPiece = false;
     printf(" ");
     for (int i = 0; i < 9; ++i) {
-        if (outer->pieces[i].position == locToCheck) {
+        if (outer->pieces[i].position == outerLoc) {
             printf("%c", outer->pieces[i].c);
+            isPiece = true;
+            break;
         }
     }
 
+    if (!isPiece) {
+        printf(".");
+    }
+
     printf(" ");
+}
+
+
+bool isValidLoc(OuterBoard * outer, int location) {
+
+    for (int i = 0; i < 9; ++i) {
+        if (outer->pieces[i].position == convertInputToIndex(outer, location)) {
+            printf("There is already a piece there. Please try again.");
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool charIsMoveable(OuterBoard * outer, char piece) {
+
+
+    for (int i = 0; i < 9; ++i) {
+        if (outer->inner->valid_locations[i] ==
+                outer->pieces[getPieceIndex(outer, piece)].position)
+            return true;
+    }
+
+    return false;
+}
+
+bool makeMove(OuterBoard * outer, int player, char c, int innerLocation) {
+
+    int piece = getPieceIndex(outer, c);
+    if (piece == -1) {
+        printf("Invalid move! Please choose a valid piece.\n");
+        return false;
+    } else if (outer->pieces[piece].player != player) {
+        printf("Invalid move! Please choose one of your own pieces.\n");
+        return false;
+    } else if (!charIsMoveable(outer, c)) {
+        printf("Invalid move! Please choose a movable piece.\n");
+    } else if (!isValidLoc(outer, innerLocation)) {
+        printf("Invalid move! A piece is already there.\n");
+    }
+
+    movePiece(outer, c, location);
+
+
+    return true;
+}
+
+bool movePiece(OuterBoard * outer, char c, int outerLocation) {
+    // takes char and location, and makes move according to location
+
 }
 
 void printBoard(OuterBoard * outer) {
@@ -94,6 +162,7 @@ int main()
 
     // begin run program
     printHeader(progName);
+
 
     while(!win) {
 
