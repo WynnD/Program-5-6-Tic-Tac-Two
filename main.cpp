@@ -41,7 +41,7 @@ void printHeader(char* progName) {
 }
 
 int convertInputToIndex(OuterBoard * outer, int input) {
-    // converts user inputted number to board index
+    // converts user inner board index (1-9) to outer board index (1-25)
     return outer->inner->valid_locations[input-1];
 }
 
@@ -112,20 +112,30 @@ bool charIsMoveable(OuterBoard * outer, char piece) {
 
 bool makeMove(OuterBoard * outer, int player, char c, int innerLocation) {
 
-    int piece = getPieceIndex(outer, c);
-    if (piece == -1) {
-        printf("Invalid move! Please choose a valid piece.\n");
-        return false;
-    } else if (outer->pieces[piece].player != player) {
-        printf("Invalid move! Please choose one of your own pieces.\n");
-        return false;
-    } else if (!charIsMoveable(outer, c)) {
-        printf("Invalid move! Please choose a movable piece.\n");
-    } else if (!isValidLoc(outer, innerLocation)) {
-        printf("Invalid move! A piece is already there.\n");
+    if (c.tolower() == "m") {
+        if (innerLocation > 0 && innerLocation < 10) {
+            moveBoard(innerLocation);
+        }
+    } else {
+        int piece = getPieceIndex(outer, c);
+        if (piece == -1) {
+            printf("Invalid move! Please choose a valid piece.\n");
+            return false;
+        } else if (outer->pieces[piece].player != player) {
+            printf("Invalid move! Please choose one of your own pieces.\n");
+            return false;
+        } else if (!charIsMoveable(outer, c)) {
+            printf("Invalid move! Please choose a movable piece.\n");
+            return false;
+        } else if (!isValidLoc(outer, innerLocation)) {
+            printf("Invalid move! A piece is already there.\n");
+            return false;
+        } else {
+            int outerLocation = convertInputToIndex(innerLocation);
+            movePiece(outer, c, outerLocation);
+        }
     }
 
-    movePiece(outer, c, location);
 
 
     return true;
@@ -133,14 +143,19 @@ bool makeMove(OuterBoard * outer, int player, char c, int innerLocation) {
 
 bool movePiece(OuterBoard * outer, char c, int outerLocation) {
     // takes char and location, and makes move according to location
-
+    outer->pieces[getPieceIndex(outer, c)].position = outerLocation;
 }
+
+
 
 void printBoard(OuterBoard * outer) {
 
     printf("-------------------\n");
     for (int row = 1; row < 6; ++row) {
-
+        printf("| ");
+        for (int column = 1; column < 6; ++column) {
+            //
+        }
     }
 
 }
