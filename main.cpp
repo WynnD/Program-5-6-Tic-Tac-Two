@@ -10,7 +10,7 @@ typedef struct piece {
 
 typedef struct innerBoard {
     // used to store where the inner board is located
-    int current_position; // position
+    int current_position = 5; // position (1-9)
     int valid_locations[9] = {6,7,8,11,12,13,16,17,18};
 } innerBoard_struct;
 
@@ -30,6 +30,9 @@ int getPieceIndex(OuterBoard * outer, char c) {
     return -1;
 }
 
+int getGridLocation(OuterBoard * outer) {
+    return outer->inner->current_position;
+}
 
 void printHeader(char* progName) {
     cout << progName << endl
@@ -40,12 +43,13 @@ void printHeader(char* progName) {
     return;
 }
 
-int convertInputToIndex(OuterBoard * outer, int input) {
+int convertInnerToOuter(OuterBoard * outer, int input) {
     // converts user inner board index (1-9) to outer board index (1-25)
     return outer->inner->valid_locations[input-1];
 }
 
-void setValidLocations(OuterBoard * outer, int validLocations[9][9], int gridLocation) {
+void setValidLocations(OuterBoard * outer, int validLocations[9][9]) {
+    int gridLocation = getGridLocation(outer);
     for (int i = 0; i < 9; i++) {
         outer->inner->valid_locations[i] = validLocations[gridLocation-1][i];
     }
@@ -83,13 +87,15 @@ void printLocation(OuterBoard * outer, int outerLoc) {
     }
 
     printf(" ");
+
+    return;
 }
 
 
 bool isValidLoc(OuterBoard * outer, int location) {
 
     for (int i = 0; i < 9; ++i) {
-        if (outer->pieces[i].position == convertInputToIndex(outer, location)) {
+        if (outer->pieces[i].position == convertInnerToOuter(outer, location)) {
             printf("There is already a piece there. Please try again.");
             return false;
         }
@@ -110,11 +116,19 @@ bool charIsMoveable(OuterBoard * outer, char piece) {
     return false;
 }
 
+void movePiece(OuterBoard * outer, char c, int outerLocation) {
+    // takes char and location, and makes move according to location
+    outer->pieces[getPieceIndex(outer, c)].position = outerLocation;
+
+    return;
+}
+
+
 bool makeMove(OuterBoard * outer, int player, char c, int innerLocation) {
 
-    if (c.tolower() == "m") {
+    if (tolower(c) == 'm') {
         if (innerLocation > 0 && innerLocation < 10) {
-            moveBoard(innerLocation);
+            //moveBoard(innerLocation);
         }
     } else {
         int piece = getPieceIndex(outer, c);
@@ -131,7 +145,7 @@ bool makeMove(OuterBoard * outer, int player, char c, int innerLocation) {
             printf("Invalid move! A piece is already there.\n");
             return false;
         } else {
-            int outerLocation = convertInputToIndex(innerLocation);
+            int outerLocation = convertInnerToOuter(outer, innerLocation);
             movePiece(outer, c, outerLocation);
         }
     }
@@ -141,28 +155,87 @@ bool makeMove(OuterBoard * outer, int player, char c, int innerLocation) {
     return true;
 }
 
-bool movePiece(OuterBoard * outer, char c, int outerLocation) {
-    // takes char and location, and makes move according to location
-    outer->pieces[getPieceIndex(outer, c)].position = outerLocation;
+void printRemainingPieces(OuterBoard * outer, int player) {
+    piece thePiece = outer->pieces[0];
+
+    printf("        Player %d:", player);
+
+
+    for (int i = 4*(player-1); i < 4*player; ++i) {
+        thePiece = outer->pieces[i];
+        printf(" ");
+        if (thePiece.position != -1 && thePiece
+                .player == player) {
+            printf("%c", thePiece.c);
+        } else {
+            printf(" ");
+        }
+    }
+
+    printf("\n");
+
+    return;
 }
 
+void printBorderRow(OuterBoard * outer, int row) {
+    printf("|");
+    for (int column = 1; column < 6; ++column) {
 
+        printf("   ");
+        if (column != 5) {
+            printf(" ");
+        }
+    }
+    printf("|");
+    // print remaining pieces
+    if (row == 1) {
+        printRemainingPieces(outer, row);
+    } else {
+        printf("\n");
+    }
+}
+
+void printPieceRow(OuterBoard * outer, int row) {
+    printf("|");
+    for (int column = 1+row*5; column < 6+row*5 && row % 2 == 0; ++column) {
+        printLocation(outer, column);
+        if (column != 5+row*5) {
+            printf(" ");
+        }
+    }
+
+    printf("|");
+    // print remaining pieces
+    if (row == 0) {
+        printf("    Pieces remaining for: \n");
+    } else
+    if (row == 2) {
+        printRemainingPieces(outer, row);
+    } else {
+        printf("\n");
+    }
+}
 
 void printBoard(OuterBoard * outer) {
 
-    printf("-------------------\n");
-    for (int row = 1; row < 6; ++row) {
-        printf("| ");
-        for (int column = 1; column < 6; ++column) {
-            //
+    printf(" ------------------- \n");
+    for (int row = 0; row < 9; ++row) {
+        if (row % 2 == 0) {
+            printPieceRow(outer, row);
+        }
+        if (row % 2 == 1) {
+            printBorderRow(outer, row);
         }
     }
+
+    printf(" ------------------- \n");
 
 }
 
 int main()
 {
     bool win = false;
+    OuterBoard * outer = new OuterBoard;
     char progName[] = "Program 5: Tic Tac Two";
     int validLocations[9][9] = {{1,2,3,6,7,8,11,12,13},
                                 {2,3,4,7,8,9,12,13,14},
@@ -177,10 +250,14 @@ int main()
 
     // begin run program
     printHeader(progName);
+    initPieces(outer);
 
 
     while(!win) {
-
+        setValidLocations(outer, validLocations);
+        //printRemainingPieces(outer, 1);
+        printBoard(outer);
+        win = true;
     }
 
 
