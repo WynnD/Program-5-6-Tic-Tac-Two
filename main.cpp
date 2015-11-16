@@ -43,6 +43,14 @@ void printHeader(char* progName) {
     return;
 }
 
+bool pipeComesAfter(OuterBoard * outer, int pos) {
+    int inner_pos = outer->inner->current_position;
+    int them[] = {1,2,6,7,11,12};
+
+
+    return false;
+}
+
 int convertInnerToOuter(OuterBoard * outer, int input) {
     // converts user inner board index (1-9) to outer board index (1-25)
     return outer->inner->valid_locations[input-1];
@@ -177,23 +185,22 @@ void printRemainingPieces(OuterBoard * outer, int player) {
     return;
 }
 
-void printBorderRow(OuterBoard * outer, int row) {
-    printf("|");
-    for (int column = 1; column < 6; ++column) {
+//void printBorderRow(OuterBoard * outer, int row) {
+//    printf("|");
+//    for (int column = 1; column < 6; ++column) {
 
-        printf("   ");
-        if (column != 5) {
-            printf(" ");
-        }
-    }
-    printf("|");
-    // print remaining pieces
-    if (row == 1) {
-        printRemainingPieces(outer, row);
-    } else {
-        printf("\n");
-    }
-}
+//        printf("   ");
+//        if (column != 5) {
+//            printf(" ");
+//        }
+//    }
+//    printf("|");
+//    // print remaining pieces
+//
+//    } else {
+//        printf("\n");
+//    }
+//}
 
 void printPieceRow(OuterBoard * outer, int row) {
     printf("|");
@@ -216,6 +223,97 @@ void printPieceRow(OuterBoard * outer, int row) {
     }
 }
 
+
+void printHorizontalBorder(OuterBoard * outer, int row) {
+    int inner_pos = outer->inner->current_position;
+    printf("|");
+    if (row == 1) {
+        switch(inner_pos) {
+            case 1:
+                printf(" ---------         ");
+                break;
+            case 2:
+                printf("     ---------     ");
+                break;
+            case 3:
+                printf("         --------- ");
+                break;
+            default:
+                printf("                   ");
+                break;
+        }
+        printf("|");
+        printRemainingPieces(outer, 1);
+
+    } else if (row == 3) {
+        switch(inner_pos) {
+            case 1:
+                printf(" ---------         ");
+                break;
+            case 2:
+                printf("     ---------     ");
+                break;
+            case 3:
+                printf("         --------- ");
+                break;
+            case 4:
+                printf(" ---------         ");
+                break;
+            case 5:
+                printf("     ---------     ");
+                break;
+            case 6:
+                printf("         --------- ");
+                break;
+            default:
+                printf("                   ");
+                break;
+        }
+    } else if (row == 5) {
+        switch(inner_pos) {
+            case 4:
+                printf(" ---------         ");
+                break;
+            case 5:
+                printf("     ---------     ");
+                break;
+            case 6:
+                printf("         --------- ");
+                break;
+            case 7:
+                printf(" ---------         ");
+                break;
+            case 8:
+                printf("     ---------     ");
+                break;
+            case 9:
+                printf("         --------- ");
+                break;
+            default:
+                printf("                   ");
+                break;
+        }
+    } else if (row == 7) {
+        switch(inner_pos) {
+            case 7:
+                printf(" ---------         ");
+                break;
+            case 8:
+                printf("     ---------     ");
+                break;
+            case 9:
+                printf("         --------- ");
+                break;
+            default:
+                printf("                   ");
+        }
+    }
+
+    if (row != 1) {
+        printf("|\n");
+    }
+}
+
 void printBoard(OuterBoard * outer) {
 
     printf(" ------------------- \n");
@@ -224,13 +322,14 @@ void printBoard(OuterBoard * outer) {
             printPieceRow(outer, row);
         }
         if (row % 2 == 1) {
-            printBorderRow(outer, row);
+            printHorizontalBorder(outer, row);
         }
     }
 
     printf(" ------------------- \n");
 
 }
+
 
 int main()
 {
