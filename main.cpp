@@ -1,3 +1,9 @@
+/* Wynn Drahorad
+ * 9 am Tuesday lab
+ * Program 5
+ * Qt Creator, Windows 10
+ */
+
 #include <iostream>
 
 using namespace std;
@@ -21,6 +27,7 @@ typedef struct OuterBoard {
 } OuterBoard_struct;
 
 int getPieceIndex(OuterBoard * outer, char c) {
+    // gets piece outer index
     for (int i = 0; i < 9; ++i) {
         if (outer->pieces[i].c == c) {
             return i;
@@ -31,10 +38,12 @@ int getPieceIndex(OuterBoard * outer, char c) {
 }
 
 int getGridLocation(OuterBoard * outer) {
+    // returns location of the inner board
     return outer->inner->current_position;
 }
 
 void printHeader(char* progName) {
+    // prints header
     cout << progName << endl
             << "Author: Wynn Drahorad" << endl
             << "Lab: Tues 9am" << endl
@@ -44,6 +53,7 @@ void printHeader(char* progName) {
 }
 
 bool pipeComesAfter(OuterBoard * outer, int pos) {
+    // checks if a pipe comes after the specified board position
     int inner_pos = outer->inner->current_position;
     int hasPipe[] = {1,2,6,7,11,12};
     if (inner_pos > 1) {
@@ -78,6 +88,7 @@ int convertInnerToOuter(OuterBoard * outer, int input) {
 }
 
 void setValidLocations(OuterBoard * outer, int validLocations[9][9]) {
+    // sets valid locations upon update of grid location
     int gridLocation = getGridLocation(outer);
     for (int i = 0; i < 9; i++) {
         outer->inner->valid_locations[i] = validLocations[gridLocation-1][i];
@@ -87,7 +98,7 @@ void setValidLocations(OuterBoard * outer, int validLocations[9][9]) {
 }
 
 void initPieces(OuterBoard* board) {
-
+    // initializes the player pieces and their position values to a default of -1
     for (int i = 0; i < 4; ++i) {
         board->pieces[i].c = 'A'+i;
         board->pieces[i].player = 1;
@@ -102,6 +113,7 @@ void initPieces(OuterBoard* board) {
 }
 
 void printLocation(OuterBoard * outer, int outerLoc) {
+    // prints the piece at given outerLoc, if no piece, prints . instead
     bool isPiece = false;
     printf(" ");
     for (int i = 0; i < 9; ++i) {
@@ -122,12 +134,13 @@ void printLocation(OuterBoard * outer, int outerLoc) {
 }
 
 bool moveBoard(OuterBoard* outer, int pos) {
+    // moves board given new position
     outer->inner->current_position = pos;
     return true;
 }
 
 bool isOpenPosition(OuterBoard * outer, int location) {
-
+    // checks if location is open (no piece already there) for a piece to be placed
     int posToGo;
     int checkPos;
     for (int i = 0; i < 9; ++i) {
@@ -143,6 +156,7 @@ bool isOpenPosition(OuterBoard * outer, int location) {
 }
 
 bool charIsMoveable(OuterBoard * outer, char piece, int turn) {
+    // checks if the given character is movable (must be within the boundaries of the board, or unused)
 
     if (turn < 5) {
         if (outer->pieces[getPieceIndex(outer, piece)].position != -1) {
@@ -175,6 +189,14 @@ void movePiece(OuterBoard * outer, char c, int outerLocation) {
 
 int makeMove(OuterBoard * outer, int turn, int player,
               char c, int position, int successCode) {
+
+    // makes move depending on given player, character, position, and previous success code
+
+    /* EXPLANATION OF SUCCESS CODES
+     * 0 = last move command failed
+     * 1 = last move command was executed, piece was moved
+     * 2 = board was moved successfully last move
+     */
 
     if (tolower(c) == 'm') {
         if (turn < 5) {
@@ -215,6 +237,8 @@ int makeMove(OuterBoard * outer, int turn, int player,
 }
 
 void printRemainingPieces(OuterBoard * outer, int player) {
+    // prints remaining pieces, given player/owner
+
     piece * thePiece;
 
     printf("        Player %d:", player);
@@ -237,6 +261,8 @@ void printRemainingPieces(OuterBoard * outer, int player) {
 }
 
 void printPieceRow(OuterBoard * outer, int row) {
+    // prints given row (these rows contain pieces and pipes [borders])
+
     printf("|");
     for (int column = 1+row*5; column < 6+row*5; ++column) {
         printLocation(outer, column);
@@ -264,6 +290,8 @@ void printPieceRow(OuterBoard * outer, int row) {
 
 
 void printHorizontalBorder(OuterBoard * outer, int row) {
+    // prints Horizontal border row depending on inner_board location
+
     int inner_pos = outer->inner->current_position;
     printf("|");
     if (row == 1) {
@@ -353,11 +381,11 @@ void printHorizontalBorder(OuterBoard * outer, int row) {
         printf("|       7 8 9\n");
     }
 
-    if (row == 2) {
-    }
+    return;
 }
 
 void printBoard(OuterBoard * outer) {
+    // prints board using printPieceRow() and printHorizontalBorder()
 
     printf(" ------------------- \n");
     for (int row = 0; row < 5; ++row) {
@@ -372,6 +400,7 @@ void printBoard(OuterBoard * outer) {
 }
 
 int whoOwnsPosition(OuterBoard* outer, int outerPosition) {
+    // returns player that owns given outerPosition
     for (int i = 0; i < 8; ++i) {
         if (outer->pieces[i].position == outerPosition) {
             return outer->pieces[i].player;
@@ -381,6 +410,8 @@ int whoOwnsPosition(OuterBoard* outer, int outerPosition) {
 }
 
 int queryPlayerChar(int turn, int player) {
+    // asks player for move character
+
     char moveChar;
     cout << turn << ". Player " << player << ": Enter piece to move and destination number, or 'm'"
             << endl << "to move the grid and move direction (1-9 except 5): ";
@@ -389,6 +420,8 @@ int queryPlayerChar(int turn, int player) {
 }
 
 int queryPlayerInt() {
+    // asks player for integer, corresponding to position to move
+
     int moveInt;
     scanf(" %d", &moveInt);
     return moveInt;
@@ -405,8 +438,10 @@ bool isValid(OuterBoard * outer, int position) {
 */
 
 int isWin(OuterBoard * outer) {
+    // checks if current board has a winner
 
-    int winners[8][3] =
+    //
+    int winners[8][3] = // diagonal win combinations
                  {{outer->inner->valid_locations[2],
                    outer->inner->valid_locations[4],
                    outer->inner->valid_locations[6]},
@@ -414,6 +449,7 @@ int isWin(OuterBoard * outer) {
                    outer->inner->valid_locations[4],
                    outer->inner->valid_locations[8]},
 
+                  // horizontal win combinations
                   {outer->inner->valid_locations[0],
                    outer->inner->valid_locations[1],
                    outer->inner->valid_locations[2]},
@@ -424,6 +460,7 @@ int isWin(OuterBoard * outer) {
                    outer->inner->valid_locations[7],
                    outer->inner->valid_locations[8]},
 
+                  // vertical win combinations
                   {outer->inner->valid_locations[0],
                    outer->inner->valid_locations[3],
                    outer->inner->valid_locations[6]},
@@ -437,15 +474,20 @@ int isWin(OuterBoard * outer) {
     int counterPlayer1;
     int counterPlayer2;
     for (int i = 0; i < 8; ++i) {
+        // check each win condition (8 different combinations)
         counterPlayer1 = counterPlayer2 = 0;
         for (int j = 0; j < 3; ++j) {
+            // check which player owns the position
             if (whoOwnsPosition(outer,winners[i][j]) == 1) {
                 ++counterPlayer1;
             }
+
             if (whoOwnsPosition(outer,winners[i][j]) == 2) {
                 ++counterPlayer2;
             }
         }
+
+        // if either player has all three positions in one win condition, return winning player
         if (counterPlayer1 == 3) {
             return 1;
         }
@@ -462,10 +504,15 @@ int main()
 {
     int winner = 0;
     OuterBoard * outer = new OuterBoard;
+    int player = 1;
+    int turn = 1;
+    int moveInt;
+    char moveChar;
+    int moveSuccessful;
     char progName[] = "Program 5: Tic Tac Two";
     int validLocations[9][9] = {{1,2,3,6,7,8,11,12,13},
                                 {2,3,4,7,8,9,12,13,14},
-                                {3,4,5,6,9,10,13,14,15},
+                                {3,4,5,8,9,10,13,14,15},
                                 {6,7,8,11,12,13,16,17,18},
                                 {7,8,9,12,13,14,17,18,19},
                                 {10,11,12,15,16,17,20,21,22},
@@ -473,33 +520,27 @@ int main()
                                 {12,13,14,17,18,19,22,23,24},
                                 {13,14,15,18,19,20,23,24,25}};
 
-
     // begin run program
-    printHeader(progName);
-    initPieces(outer);
-
-
-
-    int player = 1;
-    int turn = 1;
-    int moveInt;
-    char moveChar;
-    int moveSuccessful;
+    printHeader(progName); // print header
+    initPieces(outer); // initialize pieces (set their characters and initial positions)
 
     setValidLocations(outer, validLocations);
     printBoard(outer);
     while(!winner) {
-        moveChar = queryPlayerChar(turn, player);
-        moveInt = queryPlayerInt();
-        moveSuccessful = makeMove(outer, turn, player,
+        // continue to loop while winner equals 0 (and/or is false)
+        moveChar = queryPlayerChar(turn, player); // get move character
+        moveInt = queryPlayerInt(); // get position to move to
+        moveSuccessful = makeMove(outer, turn, player, // make move, and check if move successful
                                   moveChar, moveInt, moveSuccessful);
         if (moveSuccessful > 0) {
+            // if move successful, iterate turn and toggle player
             turn++;
             player = (player % 2) + 1;
         }
-        setValidLocations(outer, validLocations);
-        winner = isWin(outer);
-        printBoard(outer);
+
+        setValidLocations(outer, validLocations); // update list of valid location
+        winner = isWin(outer); // check if win condition met
+        printBoard(outer); // print board
     }
 
     printf("\n\nCongratulations to player %d! You won!\n\n", winner);
